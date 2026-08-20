@@ -1,7 +1,7 @@
-# Sensitive - don't sync
+# Sensitive
 auth.json
 
-# Local state - don't sync
+# Local state
 .pi/
 sessions/
 bin/
@@ -11,15 +11,17 @@ pi-debug.log
 trust.json
 
 # Pi runtime files
+npm/
 git/
+tmp/
+node_modules/
+
 models-store.json
 mcp-cache.json
 mcp-npx-cache.json
+mcp-onboarding.json
 run-history.jsonl
 session-manager-config.toml
-
-node_modules/
-tmp/
 
 # OS files
 .DS_Store
