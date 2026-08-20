@@ -1,5 +1,10 @@
 [tools]
 fd = "latest"
 jq = "latest"
+"pipx:graphifyy" = "latest"
 ripgrep = "latest"
 rtk = "latest"
+uv = "latest"
+
+[tasks.setup-graphify]
+run = "graphify pi install"
