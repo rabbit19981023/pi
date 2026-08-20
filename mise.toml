@@ -1,0 +1,4 @@
+[tools]
+fd = "latest"
+jq = "latest"
+ripgrep = "latest"
