@@ -5,6 +5,7 @@
   "defaultModel": "muse-spark-1.2-contributor",
   "defaultThinkingLevel": "high",
   "packages": [
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:context-mode"
   ]
 }

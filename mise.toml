@@ -1,10 +1,16 @@
 [tools]
+bun = "latest"
 fd = "latest"
 jq = "latest"
+"npm:context-mode" = "latest"
 "pipx:graphifyy" = "latest"
+pnpm = "latest"
 ripgrep = "latest"
 rtk = "latest"
 uv = "latest"
+
+[settings.npm]
+package_manager = "pnpm"
 
 [tasks.setup-graphify]
 run = "graphify pi install"
