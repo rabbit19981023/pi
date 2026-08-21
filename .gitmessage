@@ -1,0 +1,38 @@
+# machine: types=feat,fix,chore,docs,refactor,ci scopes=extensions,skills,config,tooling,git
+# (single source of truth — githooks/commit-msg parses this line; edit only here)
+
+# <type>(<scope>): <imperative subject>  —  <=72 chars, lowercase, no period
+# |<---------------- subject ---------------->|
+# Example: feat(extensions): integrate context-mode FTS5 sandbox
+
+# WHY (required): Why is this change needed? What breaks without it?
+# Keep each line <=72 chars. Explain the user-visible impact.
+#
+# HOW (optional): Key implementation points.
+#
+# Refs: #issue  |  Closes: #issue  |  BREAKING CHANGE: <description>
+#
+# ── Commit Convention ──────────────────────────────────────────────
+# type:
+#   feat  — user-felt capability (new tool/skill/extension that changes workflow)
+#   fix   — bug fix
+#   chore — unfelt plumbing (config sync, gitignore, template, housekeeping)
+#   docs  — documentation only
+#   refactor — code restructure without behavior change
+#   ci    — CI / automation
+#
+# scope (classification, pick one):
+#   extensions — pi extensions (context-mode, pi-mcp-adapter, pi-web-access, rpiv-todo, etc.)
+#   skills     — skill sets (mattpocock, codebase-design, research, tdd, etc.)
+#   config     — mise.toml, settings.json, .mcp.json, etc.
+#   tooling    — toolchain / package manager (mise, bun, pnpm, ripgrep, fd, uv)
+#   git        — git plumbing (.gitmessage, hooks, .gitignore, commit convention)
+#
+# subject: imperative verb, lowercase, no period, <=72 chars
+#   good: "integrate", "wire", "enable", "scaffold", "fix", "remove"
+#   bad:  "added", "Adds", "fix.", "update stuff"
+#
+# body:   blank line after subject, each line <=72 chars, explain WHY then HOW
+#
+# footer: Refs #123 / Closes #123 / BREAKING CHANGE: <desc>  (optional)
+# ──────────────────────────────────────────────────────────────────

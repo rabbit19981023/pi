@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# Lite commit-msg hook — warn-only, never blocks.
+# Validates Conventional Commits with classification scopes.
+# Types/scopes are parsed from .gitmessage (single source of truth,
+# see the '# machine:' line there). To make it blocking, change
+# WARN_ONLY=1 to 0.
+
+# 0 = strict (blocks non-conforming commits via the 'exit 1' branch below);
+# 1 = lite  (warn-only, never blocks — current rollout state).
+WARN_ONLY=1
+MSG_FILE="$1"
+
+# --- Load convention from .gitmessage (single source of truth) ---
+# Assumes the hook runs from the repo root; commit.template may be a
+# relative path. Falls back to built-in defaults if parsing fails.
+TEMPLATE=$(git config commit.template 2>/dev/null || echo ".gitmessage")
+[ -f "$TEMPLATE" ] || TEMPLATE=".gitmessage"
+
+MACHINE=$(grep -m1 '^# machine:' "$TEMPLATE" 2>/dev/null)
+if [ -n "$MACHINE" ]; then
+  TYPES=$(echo "$MACHINE" | sed -nE 's/.*types=([^ ]+).*/\1/p' | tr ',' '|')
+  SCOPES=$(echo "$MACHINE" | sed -nE 's/.*scopes=([^ ]+).*/\1/p' | tr ',' '|')
+fi
+if [ -z "${TYPES:-}" ] || [ -z "${SCOPES:-}" ]; then
+  echo "[commit-msg] WARN: cannot parse '# machine:' line in $TEMPLATE — using built-in defaults" >&2
+  TYPES="feat|fix|chore|docs|refactor|ci"
+  SCOPES="extensions|skills|config|tooling|git"
+fi
+
+# Read subject line (first non-comment, non-empty line)
+SUBJECT=$(grep -v '^#' "$MSG_FILE" | grep -v '^$' | head -n1)
+
+if [ -z "$SUBJECT" ]; then
+  echo "[commit-msg] WARN: empty commit message" >&2
+  exit 0
+fi
+
+# Skip auto-generated messages (merge/revert/fixup/squash) — not human-written
+case "$SUBJECT" in
+"Merge "* | "Revert "* | "fixup! "* | "squash! "*) exit 0 ;;
+esac
+
+PASS=1
+WARN=""
+
+# 1. Format: type(scope): subject
+if ! echo "$SUBJECT" | grep -qE "^(${TYPES})\\((${SCOPES})\\): .+"; then
+  WARN="${WARN}  - Subject must match '<type>(<scope>): <imperative subject>'\n"
+  WARN="${WARN}    Allowed types: $(echo "$TYPES" | tr '|' ', ')\n"
+  WARN="${WARN}    Allowed scopes (classification): $(echo "$SCOPES" | tr '|' ', ')\n"
+  WARN="${WARN}    Example: feat(extensions): integrate context-mode FTS5 sandbox\n"
+  PASS=0
+fi
+
+# 2. Subject length <=72 chars (wc -m counts characters, multibyte-safe)
+SUBJECT_LEN=$(printf '%s' "$SUBJECT" | wc -m | tr -d ' ')
+if [ "$SUBJECT_LEN" -gt 72 ]; then
+  WARN="${WARN}  - Subject too long (${SUBJECT_LEN} > 72 chars)\n"
+  PASS=0
+fi
+
+# 3. Subject should not end with a period
+if echo "$SUBJECT" | grep -qE '\.$'; then
+  WARN="${WARN}  - Subject should not end with a period\n"
+  PASS=0
+fi
+
+# 4. Subject after colon should start with lowercase (imperative)
+AFTER_COLON=$(echo "$SUBJECT" | sed -E 's/^[^:]+: //')
+if echo "$AFTER_COLON" | grep -qE '^[A-Z]'; then
+  WARN="${WARN}  - Subject should start with lowercase imperative verb (e.g., 'add' not 'Add')\n"
+  PASS=0
+fi
+
+# 5. Body lines should be <=72 chars (soft warning, never fails)
+BODY_LINES=$(grep -v '^#' "$MSG_FILE" | grep -v '^$' | tail -n +2)
+if [ -n "$BODY_LINES" ]; then
+  LONG_BODY=$(echo "$BODY_LINES" | awk 'length > 72')
+  if [ -n "$LONG_BODY" ]; then
+    WARN="${WARN}  - Body has lines >72 bytes (wrap for readability)\n"
+  fi
+fi
+
+# 6. WHY body is required for every commit (see .gitmessage: WHY required)
+if [ -z "$BODY_LINES" ]; then
+  WARN="${WARN}  - Missing WHY body — every commit must explain why the change is needed\n"
+  PASS=0
+fi
+
+if [ "$PASS" -eq 0 ]; then
+  echo "" >&2
+  echo "[commit-msg] WARN: commit message does not follow convention:" >&2
+  echo -e "$WARN" >&2
+  echo "  Your subject: \"$SUBJECT\"" >&2
+  echo "" >&2
+  echo "  See .gitmessage for the full convention." >&2
+  if [ "$WARN_ONLY" -eq 1 ]; then
+    echo "  [lite mode] Not blocking — commit will proceed. Fix with: git commit --amend" >&2
+    echo "" >&2
+    exit 0
+  else
+    # strict mode — only reached when WARN_ONLY=0; blocks the commit.
+    echo "  [strict mode] Blocking commit. Fix the message and retry." >&2
+    echo "" >&2
+    exit 1
+  fi
+fi
+
+exit 0

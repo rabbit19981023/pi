@@ -11,6 +11,10 @@
 - **Web**: instant answer → `web_search`; need persistent searchable index → `ctx_fetch_and_index` → `ctx_search`
 - **Knowledge graph**: if `graphify-out/graph.json` exists, prefer `graphify query / path / explain`
 
+## Commit Convention
+
+`.gitmessage` — read it before every commit: `type(scope): imperative subject` + WHY/HOW body.
+
 ## Principles
 
 - **Think in Code**: run `console.log()` inside the sandbox and return only the answer — never dump raw large files into the conversation

@@ -12,5 +12,9 @@ uv = "latest"
 [settings.npm]
 package_manager = "pnpm"
 
+[tasks.setup-git]
+description = "Wire commit template + repo-local hook"
+run = "git config commit.template .gitmessage && git config core.hooksPath githooks"
+
 [tasks.setup-graphify]
 run = "graphify pi install"
