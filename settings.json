@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.84.2",
+  "lastChangelogVersion": "0.84.4",
   "theme": "dark",
   "defaultProvider": "opencode-go",
   "defaultModel": "muse-spark-1.2-contributor",
@@ -8,6 +8,8 @@
     "npm:pi-mcp-adapter",
     "npm:context-mode",
     "npm:pi-web-access",
-    "npm:@juicesharp/rpiv-todo"
+    "npm:@juicesharp/rpiv-todo",
+    "npm:pi-subagents-lite",
+    "npm:@dietrichgebert/ponytail"
   ]
 }
