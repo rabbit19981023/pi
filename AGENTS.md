@@ -1,22 +1,24 @@
-# Pi — Efficient Execution
+# AGENTS.md — global defaults (repo AGENTS.md overrides this)
 
-**Goal: Pick the right tool the first time.** Small outputs via `bash` (rtk auto-compresses 60-99%), large outputs via `context-mode` sandbox (99% saved).
+## Constitution
 
-## When to Use What
+- Ship behavior change with docs in the same commit.
+- Docs vs implementation conflict: ask the user, never pick silently.
+- Docs first; code implements docs.
+- Simple, minimal dependencies; never reinvent stdlib / mature tools.
+- Test first at agreed seams (see repo AGENTS.md; if none listed, ask); new or changed seam: confirm with user first.
 
-- **Small <20 lines**: `ls` `find` `grep` `wc` `git status` → `bash` directly
-- **Large / compute needed**: `git log` `cat large file` `npm test` `analyze logs/CSV` → `ctx_execute` / `ctx_batch_execute` (compute inside sandbox, return summary only)
-- **Reading files**: to analyze → `ctx_execute_file`; to edit → `read`
-- **Multiple commands / sources**: batch in parallel → `ctx_batch_execute` `concurrency: 4-5`; multiple URLs → `ctx_fetch_and_index` `concurrency: 4-5`
-- **Web**: instant answer → `web_search`; need persistent searchable index → `ctx_fetch_and_index` → `ctx_search`
-- **Knowledge graph**: if `graphify-out/graph.json` exists, prefer `graphify query / path / explain`
+## Execution (small, local, verifiable each step)
 
-## Commit Convention
-
-`.gitmessage` — read it before every commit: `type(scope): imperative subject` + WHY/HOW body.
-
-## Principles
-
-- **Think in Code**: run `console.log()` inside the sandbox and return only the answer — never dump raw large files into the conversation
-- **Write to file, don't flood context**: always write large results to a file, return path + one-line summary
-- **When in doubt, use sandbox**: if output size is unknown, default to `ctx_execute`
+- One small change per step; state how you'll verify before acting, verify output before continuing.
+- Pick the tool right the first time:
+  - Small (<20 lines) with known output size -> `bash`.
+  - Large output -> `ctx_execute` (compute inside, summary only).
+  - Analyze file -> `ctx_execute_file`; to edit, `read` to locate first, then call `edit`.
+  - Multiple items -> `ctx_batch_execute` (concurrency 4-5).
+  - Multiple URLs to keep -> `ctx_fetch_and_index`.
+  - Throwaway lookup -> `web_search`; keep for reuse across sessions -> `ctx_search`.
+  - `graphify-out/graph.json` exists -> query the graph first.
+- Never flood context: large results go to a file; return path + one-line summary. Unknown size -> always compute inside `ctx_execute`, return summary only.
+- Human-only steps (credentials, third-party, auth) -> use wizard; never fake completion.
+- Commit: follow `.gitmessage` if present, else repo AGENTS.md; if neither defines it, ask.
