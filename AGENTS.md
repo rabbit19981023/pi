@@ -1,16 +1,21 @@
-# AGENTS.md — global defaults (repo AGENTS.md overrides this)
+# AGENTS.md — global defaults
+
+Precedence: global AGENTS.md > repo AGENTS.md > path/module AGENTS.md
+If instructions conflict and precedence doesn't resolve it, stop and ask
 
 ## Constitution
 
 - Ship behavior change with docs in the same commit.
 - Docs vs implementation conflict: ask the user, never pick silently.
 - Docs first; code implements docs.
+- Protect existing contracts: never silently change public behavior, APIs, data formats, or module seams.
 - Simple, minimal dependencies; never reinvent stdlib / mature tools.
-- Test first at agreed seams (see repo AGENTS.md; if none listed, ask); new or changed seam: confirm with user first.
+- Test at seams declared by the repo; if none are, ask before choosing.
 
 ## Execution (small, local, verifiable each step)
 
 - One small change per step; state how you'll verify before acting, verify output before continuing.
+- Don't batch unrelated changes into one step.
 - Pick the tool right the first time:
   - Small (<20 lines) with known output size -> `bash`.
   - Large output -> `ctx_execute` (compute inside, summary only).
